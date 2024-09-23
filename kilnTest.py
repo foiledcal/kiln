@@ -12,7 +12,8 @@ import time
 import adafruit_max31855
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-from simple_pid import PID
+#from simple_pid import PID
+import PIDPythonAI
 -----------------------------------------------------------
 #IO setup
 -----------------------------------------------------------
@@ -42,7 +43,7 @@ offSwitch.pull = digitalio.Pull.UP
 #variables
 -----------------------------------------------------------
 #user defined variables
-pwmPeriod = 5       #period between PWM updates in seconds
+pwmPeriod = 1       #period between PWM updates in seconds
 targetTemp = 1080   #celsius
 
 #global variables
@@ -56,6 +57,10 @@ yMax = y[0] + 100   #sets the top value of the y-axis
 -----------------------------------------------------------
 #do stuff
 -----------------------------------------------------------
+#PID setup
+SetOutputLimits(0,100)      #percentile
+SetSampleTime(pwmPeriod)
+
 #create first plot and frame
 fig, ax = plt.subplots()
 graph = ax.plot(x,y,color = 'g')[0]
@@ -71,18 +76,17 @@ plt.show()  #from here, the program will loop within update()
 
 #updates the data and graph
 def update(frame):
-    #global var import (I hate this)
-    global yMax
-    global graph
-    global waitStart
-    global heatStartTime
-    global heatStartTemp
+    global yMax, graph, waitStart, heatStartTime, heatStartTemp
 
     #safety checks
     if doorSwitch: error(1)
     if offSwitch: error(2)
     thermalRunawayCheck()
 
+    #PID heat control
+    compute()
+
+    #bang-bang heat control
     if time.time() > waitStart + pwmPeriod:     #if it's time to check
         if tempC < targetTemp:                  #if need to heat
             if not waitStart and safeToHeat:    #if not heating and relays enabled
@@ -110,9 +114,7 @@ def update(frame):
 #user-defined functions
 -----------------------------------------------------------
 def heatOff():
-    global safeToHeat
-    global relay1
-    global relay2
+    global safeToHeat, relay1, relay2
 
     safeToHeat = 0
     relay1.value = 0
@@ -120,10 +122,7 @@ def heatOff():
 
 def heatOn():
     #variables for checking thermal runaway
-    global heatStartTime
-    global heatStartTemp
-    global relay1
-    global relay2
+    global heatStartTime, heatStartTemp, relay1, relay2
 
     heatStartTime = time.time()
     heatStartTemp = tempC

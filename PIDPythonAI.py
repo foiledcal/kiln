@@ -2,9 +2,9 @@ import time
 
 # working variables
 last_time = 0
-Input = 0.0
+Input = 0.0         #current temp
 Output = 0.0
-Setpoint = 0.0
+Setpoint = 0.0      #target temp
 ITerm = 0.0
 lastInput = 0.0
 kp = 0.0
@@ -51,6 +51,8 @@ def compute():
         # Remember some variables for next time
         lastInput = Input
         last_time = now
+        
+        return output
 
 def SetTunings(Kp, Ki, Kd):
     global kp, ki, kd
