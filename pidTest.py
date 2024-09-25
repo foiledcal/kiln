@@ -1,9 +1,9 @@
 #$ source env/bin/activate
 #$ cd /home/pi/mu_code
 #$ python kilnTest.py
------------------------------------------------------------
+#-----------------------------------------------------------
 #imports
------------------------------------------------------------
+#-----------------------------------------------------------
 import board
 import busio
 import digitalio
@@ -14,9 +14,9 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 #from simple_pid import PID
 import PIDPythonAI
--------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 #IO setup
--------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 #thermocouple amp
 spi = board.SPI()
 cs = digitalio.DigitalInOut(board.D5)
@@ -39,9 +39,9 @@ doorSwitch.pull = digitalio.Pull.UP
 offSwitch = digitalio.DigitalInOut(board.D3)
 offSwitch.direction = digitalio.Direction.INPUT
 offSwitch.pull = digitalio.Pull.UP
--------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 #variables
--------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 #user defined variables
 pwmPeriod = 2                   #2s update period should be responsive enough
 targetTemp = 1080               #hard-coded target lol
@@ -58,9 +58,9 @@ oldOutput = 0                   #helps check if new orders from pwm
 x = [1]             #plot x-axis value array
 y = [tempC]         #plot y-axis value array
 yMax = y[0] + 100   #sets the top value of the y-axis
--------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 #do stuff
--------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 #PID setup
 SetOutputLimits(0,outputRes)     #how many SSR zero-crossings to be on for
 SetSampleTime(pwmPeriod)
@@ -116,9 +116,9 @@ def update(frame):
         yMax = y[-1] = 100
         plt.ylim(0, yMax)
  
- ------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 #user-defined functions
--------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 def heatOff():
     global relay1, relay2, heating
 
