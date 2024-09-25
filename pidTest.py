@@ -62,8 +62,8 @@ yMax = y[0] + 100   #sets the top value of the y-axis
 #do stuff
 #-------------------------------------------------------------------------------
 #PID setup
-SetOutputLimits(0,outputRes)     #how many SSR zero-crossings to be on for
-SetSampleTime(pwmPeriod)
+PIDPythonAI.SetOutputLimits(0,outputRes)     #how many SSR zero-crossings to be on for
+PIDPythonAI.SetSampleTime(pwmPeriod)
 
 #create first plot and frame
 fig, ax = plt.subplots()
@@ -88,7 +88,7 @@ def update(frame):
     thermalRunawayCheck()
     
     #PWM
-    pidOutput = compute()
+    pidOutput = PIDPythonAI.compute()
     
     #check for an update from PWM
     if pidOutput != oldOutput:              #pwm updated, new orders
