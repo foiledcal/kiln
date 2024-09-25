@@ -160,6 +160,7 @@ while not safeToHeat:
 #start plotting
 anim = FuncAnimation(fig, update, frames = None)
 plt.show()  #from here, the program will loop within update()
+
     
 
  
