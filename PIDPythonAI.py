@@ -52,7 +52,7 @@ def compute():
         lastInput = Input
         last_time = now
         
-        return output
+        return Output
 
 def SetTunings(Kp, Ki, Kd):
     global kp, ki, kd

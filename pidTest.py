@@ -130,7 +130,7 @@ def update(frame):
     #if in the middle of a partial heating period
     if time.time() > pulseStart + pidOutput / 120:
         pulseStart = 0    #reset pulse timer
-        heatOff()         #stop heating
+        heatOff()         #stop heating 
 
     #update the plot
     x.append(x[-1] + 1)
