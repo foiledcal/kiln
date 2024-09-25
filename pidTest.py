@@ -103,26 +103,7 @@ def error(code):
         case "2": print("Element switch is off.")
         case "3": print("Thermal runaway.")
         case "4": print("Unexpected heating.")
-#-------------------------------------------------------------------------------
-#do stuff
-#-------------------------------------------------------------------------------
-#PID setup
-PIDPythonAI.SetOutputLimits(0,outputRes)     #how many SSR zero-crossings to be on for
-PIDPythonAI.SetSampleTime(pwmPeriod)
-
-#create first plot and frame
-fig, ax = plt.subplots()
-graph = ax.plot(x,y,color = 'g')[0]
-plt.ylim(0,yMax)
-
-#do not progress until door is shut and soft switch is on
-while not safeToHeat:
-    if not doorSwitch and not offSwitch: safeToHeat = 1
-    
-#start plotting
-anim = FuncAnimation(fig, update, frames = None)
-plt.show()  #from here, the program will loop within update()
-    
+        
 #updates the data and graph
 def update(frame):
     global yMax, graph, pulseStart, heatStartTime, heatStartTemp, oldOutput
@@ -160,4 +141,25 @@ def update(frame):
     if y[-1] > yMax - 100:      #update y axis range
         yMax = y[-1] = 100
         plt.ylim(0, yMax)
+#-------------------------------------------------------------------------------
+#do stuff
+#-------------------------------------------------------------------------------
+#PID setup
+PIDPythonAI.SetOutputLimits(0,outputRes)     #how many SSR zero-crossings to be on for
+PIDPythonAI.SetSampleTime(pwmPeriod)
+
+#create first plot and frame
+fig, ax = plt.subplots()
+graph = ax.plot(x,y,color = 'g')[0]
+plt.ylim(0,yMax)
+
+#do not progress until door is shut and soft switch is on
+while not safeToHeat:
+    if not doorSwitch and not offSwitch: safeToHeat = 1
+    
+#start plotting
+anim = FuncAnimation(fig, update, frames = None)
+plt.show()  #from here, the program will loop within update()
+    
+
  
