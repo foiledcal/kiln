@@ -58,64 +58,6 @@ oldOutput = 0                   #helps check if new orders from pwm
 x = [1]             #plot x-axis value array
 y = [tempC]         #plot y-axis value array
 yMax = y[0] + 100   #sets the top value of the y-axis
-#-------------------------------------------------------------------------------
-#do stuff
-#-------------------------------------------------------------------------------
-#PID setup
-PIDPythonAI.SetOutputLimits(0,outputRes)     #how many SSR zero-crossings to be on for
-PIDPythonAI.SetSampleTime(pwmPeriod)
-
-#create first plot and frame
-fig, ax = plt.subplots()
-graph = ax.plot(x,y,color = 'g')[0]
-plt.ylim(0,yMax)
-
-#do not progress until door is shut and soft switch is on
-while not safeToHeat:
-    if not doorSwitch and not offSwitch: safeToHeat = 1
-    
-#start plotting
-anim = FuncAnimation(fig, update, frames = None)
-plt.show()  #from here, the program will loop within update()
-    
-#updates the data and graph
-def update(frame):
-    global yMax, graph, pulseStart, heatStartTime, heatStartTemp, oldOutput
-    
-    #safety checks
-    if doorSwitch: error(1)
-    if offSwitch: error(2)
-    thermalRunawayCheck()
-    
-    #PWM
-    pidOutput = PIDPythonAI.compute()
-    
-    #check for an update from PWM
-    if pidOutput != oldOutput:              #pwm updated, new orders
-        oldOutput = pidOutput               #update oldOutput
-        if pidOutput == 240:                #set heat to on until next update
-            heatOn()                       
-        elif pidOutput == 0:                #set heat to off until next update
-                heatOff()
-        else:                               
-            pulseStart = time.time()
-            heatOn()
-    
-    #if in the middle of a partial heating period
-    if time.time() > pulseStart + pidOutput / 120:
-        pulseStart = 0    #reset pulse timer
-        heatOff()         #stop heating  
-        
-    #update the plot
-    x.append(x[-1] + 1)
-    y.append(tempC)
-    graph.set_xdata(x)
-    graph.set_ydata(y)
-    plt.xlim(x[0], x[-1])
-    if y[-1] > yMax - 100:      #update y axis range
-        yMax = y[-1] = 100
-        plt.ylim(0, yMax)
- 
 #------------------------------------------------------------------------------
 #user-defined functions
 #-------------------------------------------------------------------------------
@@ -161,3 +103,61 @@ def error(code):
         case "2": print("Element switch is off.")
         case "3": print("Thermal runaway.")
         case "4": print("Unexpected heating.")
+#-------------------------------------------------------------------------------
+#do stuff
+#-------------------------------------------------------------------------------
+#PID setup
+PIDPythonAI.SetOutputLimits(0,outputRes)     #how many SSR zero-crossings to be on for
+PIDPythonAI.SetSampleTime(pwmPeriod)
+
+#create first plot and frame
+fig, ax = plt.subplots()
+graph = ax.plot(x,y,color = 'g')[0]
+plt.ylim(0,yMax)
+
+#do not progress until door is shut and soft switch is on
+while not safeToHeat:
+    if not doorSwitch and not offSwitch: safeToHeat = 1
+    
+#start plotting
+anim = FuncAnimation(fig, update, frames = None)
+plt.show()  #from here, the program will loop within update()
+    
+#updates the data and graph
+def update(frame):
+    global yMax, graph, pulseStart, heatStartTime, heatStartTemp, oldOutput
+    
+    #safety checks
+    #if doorSwitch: error(1)
+    #if offSwitch: error(2)
+    thermalRunawayCheck()
+    
+    #PWM
+    pidOutput = PIDPythonAI.compute()
+    
+    #check for an update from PWM
+    if pidOutput != oldOutput:              #pwm updated, new orders
+        oldOutput = pidOutput               #update oldOutput
+        if pidOutput == 240:                #set heat to on until next update
+            heatOn()                       
+        elif pidOutput == 0:                #set heat to off until next update
+                heatOff()
+        else:                               
+            pulseStart = time.time()
+            heatOn()
+    
+    #if in the middle of a partial heating period
+    if time.time() > pulseStart + pidOutput / 120:
+        pulseStart = 0    #reset pulse timer
+        heatOff()         #stop heating  
+        
+    #update the plot
+    x.append(x[-1] + 1)
+    y.append(tempC)
+    graph.set_xdata(x)
+    graph.set_ydata(y)
+    plt.xlim(x[0], x[-1])
+    if y[-1] > yMax - 100:      #update y axis range
+        yMax = y[-1] = 100
+        plt.ylim(0, yMax)
+ 
