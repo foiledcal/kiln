@@ -48,7 +48,7 @@ targetTemp = 1080               #hard-coded target lol
 
 #control variables
 outputRes = 120 * pwmPeriod     #120 zero-crossings per second
-safeToHeat = 0                  #controls whether relays can be enabled
+safeToHeat = 1                  #controls whether relays can be enabled
 heatStartTime = 0               #used in thermal runaway checks
 heatStartTemp = 0               #used in thermal runaway checks
 pulseStart = 0                #used in keeping PWM frequency
@@ -63,9 +63,9 @@ yMax = y[0] + 100   #sets the top value of the y-axis
 #-------------------------------------------------------------------------------
 def heatOff():
     global relay1, relay2, heating
-
     relay1.value = 0
     relay2.value = 0
+    heating = 0
 
 def heatOn():
     #variables for checking thermal runaway
@@ -78,7 +78,7 @@ def heatOn():
         relay1.value = 1
         relay2.value = 1
         heating = 1
-        
+
 def heating():
     if relay1.value == 1 or relay2.value == 1: return 1
     else: return 0
@@ -88,7 +88,7 @@ def thermalRunawayCheck():
     if time.time() - heatStartTime > 5 and tempC  < heatStartTemp + 10:
         heatOff()
         error(3)
-        
+
     #if cooling for 5s and temp not fallen more than 10 degrees
     elif time.time() - heatStartTime > 5 and tempC > heatStartTemp - 10:
         heatOff()
@@ -103,35 +103,35 @@ def error(code):
         case "2": print("Element switch is off.")
         case "3": print("Thermal runaway.")
         case "4": print("Unexpected heating.")
-        
+
 #updates the data and graph
 def update(frame):
     global yMax, graph, pulseStart, heatStartTime, heatStartTemp, oldOutput
-    
+
     #safety checks
     #if doorSwitch: error(1)
     #if offSwitch: error(2)
     thermalRunawayCheck()
-    
+
     #PWM
     pidOutput = PIDPythonAI.compute()
-    
+
     #check for an update from PWM
     if pidOutput != oldOutput:              #pwm updated, new orders
         oldOutput = pidOutput               #update oldOutput
         if pidOutput == 240:                #set heat to on until next update
-            heatOn()                       
+            heatOn()
         elif pidOutput == 0:                #set heat to off until next update
                 heatOff()
-        else:                               
+        else:
             pulseStart = time.time()
             heatOn()
-    
+
     #if in the middle of a partial heating period
     if time.time() > pulseStart + pidOutput / 120:
         pulseStart = 0    #reset pulse timer
-        heatOff()         #stop heating  
-        
+        heatOff()         #stop heating
+
     #update the plot
     x.append(x[-1] + 1)
     y.append(tempC)
@@ -156,11 +156,10 @@ plt.ylim(0,yMax)
 #do not progress until door is shut and soft switch is on
 while not safeToHeat:
     if not doorSwitch and not offSwitch: safeToHeat = 1
-    
+
 #start plotting
 anim = FuncAnimation(fig, update, frames = None)
 plt.show()  #from here, the program will loop within update()
 
-    
 
- 
+
