@@ -1,7 +1,7 @@
 import time
 
 # working variables
-last_time = 0
+last_time = 0.0
 Input = 0.0         #current temp
 Output = 0.0
 Setpoint = 0.0      #target temp
@@ -10,7 +10,7 @@ lastInput = 0.0
 kp = 2.0
 ki = 2.0
 kd = 2.0
-SampleTime = 1000
+SampleTime = 1
 outMin = 0.0
 outMax = 0.0
 inAuto = False
@@ -22,15 +22,12 @@ DIRECT = 0
 REVERSE = 1
 controllerDirection = DIRECT
 
-def millis():
-    return int(round(time.time() * 1000))
-
 def compute():
     global last_time, Input, Output, Setpoint, ITerm, lastInput, kp, ki, kd, outMin, outMax, inAuto
     if not inAuto:
         return
-    now = millis()
-    timeChange = (now - last_time)
+
+    timeChange = (time.time() - last_time)
     if timeChange >= SampleTime:
         # Compute all the working error variables
         error = Setpoint - Input
@@ -50,10 +47,10 @@ def compute():
         
         # Remember some variables for next time
         lastInput = Input
-        last_time = now
+        last_time = time.time()
         
-        print("PID Output: {}".format(Output))
-        return round(Output)
+        #print("PID Output: {}".format(Output))
+        return int(0 if Output is none or Output)   #convert "none" type to 0
 
 def SetTunings(Kp, Ki, Kd):
     global kp, ki, kd
