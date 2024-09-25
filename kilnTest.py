@@ -51,6 +51,7 @@ safeToHeat = 0      #controls whether relays can be enabled
 heatStartTime = 0   #used in thermal runaway checks
 heatStartTemp = 0   #used in thermal runaway checks
 waitStart = 0       #used in keeping PWM frequency
+heating = 0
 x = [1]             #plot x-axis value array
 y = [tempC]         #plot y-axis value array
 yMax = y[0] + 100   #sets the top value of the y-axis
@@ -114,7 +115,7 @@ def update(frame):
 #user-defined functions
 -----------------------------------------------------------
 def heatOff():
-    global safeToHeat, relay1, relay2
+    global safeToHeat, relay1, relay2, heating
 
     safeToHeat = 0
     relay1.value = 0
@@ -122,7 +123,7 @@ def heatOff():
 
 def heatOn():
     #variables for checking thermal runaway
-    global heatStartTime, heatStartTemp, relay1, relay2
+    global heatStartTime, heatStartTemp, relay1, relay2, heating
 
     heatStartTime = time.time()
     heatStartTemp = tempC
@@ -130,6 +131,7 @@ def heatOn():
     if safeToHeat:
         relay1.value = 1
         relay2.value = 1
+        heating = 1
 
 def thermalRunawayCheck():
     #if heating for 5s and temp not risen more than 10%
