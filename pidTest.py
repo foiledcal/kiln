@@ -128,6 +128,7 @@ def update(frame):
             heatOn()
 
     #if in the middle of a partial heating period
+    print(pidOutput)
     if time.time() > pulseStart + pidOutput / 120:
         pulseStart = 0    #reset pulse timer
         heatOff()         #stop heating 
