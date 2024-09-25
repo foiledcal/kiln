@@ -52,6 +52,7 @@ def compute():
         lastInput = Input
         last_time = now
         
+        print("PID Output: {}".format(Output))
         return round(Output)
 
 def SetTunings(Kp, Ki, Kd):
