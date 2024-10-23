@@ -58,7 +58,7 @@ oldOutput = 0                   #helps check if new orders from pwm
 x = [1]             #plot x-axis value array
 y = [tempC]         #plot y-axis value array
 yMax = y[0] + 100   #sets the top value of the y-axis
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 #user-defined functions
 #-------------------------------------------------------------------------------
 def heatOff():
@@ -160,7 +160,7 @@ while not safeToHeat:
 
 #start plotting
 anim = FuncAnimation(fig, update, frames = None)
-plt.show()  #from here, the program will loop within update()
+plt.show()                     #from here, the program will loop within update()
 
 
 
