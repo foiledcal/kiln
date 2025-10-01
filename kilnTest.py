@@ -1,9 +1,9 @@
 #$ source env/bin/activate
 #$ cd /home/pi/mu_code
 #$ python kilnTest.py
------------------------------------------------------------
+#-----------------------------------------------------------
 #imports
------------------------------------------------------------
+#-----------------------------------------------------------
 import board
 import busio
 import digitalio
@@ -14,9 +14,9 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 #from simple_pid import PID
 import PIDPythonAI
------------------------------------------------------------
+#-----------------------------------------------------------
 #IO setup
------------------------------------------------------------
+#-----------------------------------------------------------
 #thermocouple amp
 spi = board.SPI()
 cs = digitalio.DigitalInOut(board.D5)
@@ -39,9 +39,9 @@ doorSwitch.pull = digitalio.Pull.UP
 offSwitch = digitalio.DigitalInOut(board.D3)
 offSwitch.direction = digitalio.Direction.INPUT
 offSwitch.pull = digitalio.Pull.UP
------------------------------------------------------------
+#-----------------------------------------------------------
 #variables
------------------------------------------------------------
+#-----------------------------------------------------------
 #user defined variables
 pwmPeriod = 1       #period between PWM updates in seconds
 targetTemp = 1080   #celsius
@@ -55,9 +55,44 @@ heating = 0
 x = [1]             #plot x-axis value array
 y = [tempC]         #plot y-axis value array
 yMax = y[0] + 100   #sets the top value of the y-axis
------------------------------------------------------------
+#-----------------------------------------------------------
+#user-defined functions
+#-----------------------------------------------------------
+def heatOff():
+    global safeToHeat, relay1, relay2, heating
+
+    safeToHeat = 0
+    relay1.value = 0
+    relay2.value = 0
+
+def heatOn():
+    #variables for checking thermal runaway
+    global heatStartTime, heatStartTemp, relay1, relay2, heating
+
+    heatStartTime = time.time()
+    heatStartTemp = tempC
+
+    if safeToHeat:
+        relay1.value = 1
+        relay2.value = 1
+        heating = 1
+
+def thermalRunawayCheck():
+    #if heating for 5s and temp not risen more than 10%
+    if time.time() - heatStartTime > 5 and tempC  < heatStartTemp * 1.1:
+        heatOff()
+        error(3)
+
+def error(code):
+    heatOff()
+    print("Error {}: ".format(code))
+    match code:
+        case "1": print("Door open.")
+        case "2": print("Element switch is off.")
+        case "3": print("Thermal runaway.")
+#-----------------------------------------------------------
 #do stuff
------------------------------------------------------------
+#-----------------------------------------------------------
 #PID setup
 SetOutputLimits(0,100)      #percentile
 SetSampleTime(pwmPeriod)
@@ -110,39 +145,3 @@ def update(frame):
             plt.ylim(0, yMax)
 
         waitStart = time.time()     #reset pwm timer
-
------------------------------------------------------------
-#user-defined functions
------------------------------------------------------------
-def heatOff():
-    global safeToHeat, relay1, relay2, heating
-
-    safeToHeat = 0
-    relay1.value = 0
-    relay2.value = 0
-
-def heatOn():
-    #variables for checking thermal runaway
-    global heatStartTime, heatStartTemp, relay1, relay2, heating
-
-    heatStartTime = time.time()
-    heatStartTemp = tempC
-
-    if safeToHeat:
-        relay1.value = 1
-        relay2.value = 1
-        heating = 1
-
-def thermalRunawayCheck():
-    #if heating for 5s and temp not risen more than 10%
-    if time.time() - heatStartTime > 5 and tempC  < heatStartTemp * 1.1:
-        heatOff()
-        error(3)
-
-def error(code):
-    heatOff()
-    print("Error {}: ".format(code))
-    match code:
-        case "1": print("Door open.")
-        case "2": print("Element switch is off.")
-        case "3": print("Thermal runaway.")
