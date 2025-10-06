@@ -91,5 +91,6 @@ def error(code):
 #                   do stuff
 #------------------------------------------------------------------------------
 while(True):
+    tempC = max31855.temperature
     print('Temp = ', tempC)
     time.sleep(1)
