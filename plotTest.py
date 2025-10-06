@@ -48,6 +48,6 @@ n = 0
 while n < 5:
     plt.show()
     print(4)
-    global n
+    #global n
     n += 1
 print(5)
