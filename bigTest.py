@@ -10,7 +10,7 @@ import adafruit_max31855
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 #from simple_pid import PID
-import PIDPythonAI
+#import PIDPythonAI
 #------------------------------------------------------------------------------
 #                   IO setup
 #------------------------------------------------------------------------------
