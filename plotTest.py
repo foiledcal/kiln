@@ -48,5 +48,5 @@ n = 0
 while n < 5:
     plt.show()
     print(4)
-    n += 1
+    global n += 1
 print(5)
