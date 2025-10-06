@@ -44,10 +44,13 @@ def update(frame):
 print(2)
 anim = FuncAnimation(fig, update, frames = None)
 print(3)
-n = 0
-while n < 5:
-    plt.show()
-    print(4)
-    #global n
-    n += 1
+plt.show()
+#
+#n = 0
+#while n < 5:
+#    plt.show()
+#    print(4)
+#    #global n
+#    n = n + 1
+#
 print(5)
