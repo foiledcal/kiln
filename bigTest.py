@@ -22,9 +22,9 @@ tempC = max31855.temperature
 tempF = tempC * 9 / 5 + 32
 
 #relays
-relay1 = digitalio.DigitalInOut(board.D16)          #GPIO23
+relay1 = digitalio.DigitalInOut(board.D16)          
 relay1.direction = digitalio.Direction.OUTPUT
-relay2 = digitalio.DigitalInOut(board.D18)          #
+relay2 = digitalio.DigitalInOut(board.D18)          
 relay2.direction = digitalio.Direction.OUTPUT
 
 #door switch: 1 if open, 0 if closed
@@ -119,7 +119,7 @@ def update(frame):
         if time.time() - startTime > refreshPeriod:
             #print("TempC = ",tempC())
             x.append(x[-1] +1)
-            y.append(tempC)
+            y.append(tempC())
             graph.set_xdata(x)
             graph.set_ydata(y)
             plt.xlim(x[0], x[-1])
