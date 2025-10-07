@@ -91,7 +91,7 @@ def thermalRunawayCheck():
 def safetyCheck():
     global doorSwitch, offSwitch
     safe = True
-    if offSwitch():
+    if not offSwitch():
         error(2)
         safe = False
     #thermalRunawayCheck()
@@ -115,7 +115,7 @@ def error(code):
 def update(frame):
     global yMax, graph, startTime, refreshPeriod, tempC
 
-    while not safetyCheck:
+    while not safetyCheck():
         if time.time() - startTime > refreshPeriod:
             #print("TempC = ",tempC())
             x.append(x[-1] +1)
