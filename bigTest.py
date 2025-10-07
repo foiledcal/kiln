@@ -1,13 +1,7 @@
 #------------------------------------------------------------------------------
 #                   imports
 #------------------------------------------------------------------------------
-import board
-import busio
-import digitalio
-import time
-
-import adafruit_max31855
-import matplotlib.pyplot as plt
+cimport matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 #from simple_pid import PID
 #import PIDPythonAI
@@ -57,6 +51,15 @@ startTime = time.time()
 #------------------------------------------------------------------------------
 #                   user-defined functions
 #------------------------------------------------------------------------------
+def tempC():
+    return max31855.temperature
+
+def tempF():
+    return max31855.temperature * 9 / 5 + 32
+
+def doorSwitch():
+    return digitalio.DigitalInOut(board.D2)
+
 def heatOff():
     global safeToHeat, relay1, relay2, heating
 
@@ -77,10 +80,24 @@ def heatOn():
         heating = 1
 
 def thermalRunawayCheck():
+    global heatStartTime, tempC, heatStartTemp
     #if heating for 5s and temp not risen more than 10%
     if time.time() - heatStartTime > 5 and tempC  < heatStartTemp * 1.1:
         heatOff()
         error(3)
+
+def safetyCheck():
+    global doorSwitch, offSwitch
+    safe = True
+    if doorSwitch():
+        error(1)
+        safe = False
+    if offSwitch():
+        error(2)
+        safe = False
+    #thermalRunawayCheck()
+    return safe
+
 
 def error(code):
     heatOff()
@@ -90,38 +107,34 @@ def error(code):
         case "2": print("Element switch is off.")
         case "3": print("Thermal runaway.")
 
-def tempC():
-    return max31855.temperature
 
-def tempF():
-    return max31855.temperature * 9 / 5 + 32
 #------------------------------------------------------------------------------
 #                   do stuff
 #------------------------------------------------------------------------------
-#while(True):
-#    tempC = max31855.temperature
-#    print('Temp = ', tempC)
-#    time.sleep(1)
 
+#this is the main loop
+def update(frame):
+    global yMax, graph, startTime, refreshPeriod, tempC
 
+    while not safetyCheck:
+        if time.time() - startTime > refreshPeriod:
+            #print("TempC = ",tempC())
+            x.append(x[-1] +1)
+            y.append(tempC())
+            graph.set_xdata(x)
+            graph.set_ydata(y)
+            plt.xlim(x[0], x[-1])
+            if y[-1] > yMax:
+                yMax = y[-1]
+                plt.ylim(0, yMax + 10)
+            startTime = time.time()
+        
+
+#generate first frame 
 fig, ax = plt.subplots()
 graph = ax.plot(x,y,color = 'g')[0]
 plt.ylim(0,yMax + 10)
 
-def update(frame):
-    global yMax, graph, startTime, refreshPeriod, tempC
-
-    if time.time() - startTime > refreshPeriod:
-        print("TempC = ",tempC())
-        x.append(x[-1] +1)
-        y.append(tempC())
-        graph.set_xdata(x)
-        graph.set_ydata(y)
-        plt.xlim(x[0], x[-1])
-        if y[-1] > yMax:
-            yMax = y[-1]
-            plt.ylim(0, yMax + 10)
-        startTime = time.time()
-
+#start plotting
 anim = FuncAnimation(fig, update, frames = None)
 plt.show()
