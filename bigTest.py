@@ -100,12 +100,13 @@ def error(code):
 
 fig, ax = plt.subplots()
 graph = ax.plot(x,y,color = 'g')[0]
-plt.ylim(0,yMax)
+plt.ylim(0,yMax + 10)
 
 def update(frame):
-    global yMax, graph, waitStart, heatStartTime, heatStartTemp, startTime, refreshPeriod, tempC
+    global yMax, graph, startTime, refreshPeriod, tempC
 
     if time.time() - startTime > refreshPeriod:
+        print("TempC = " + tempC)
         x.append(x[-1] +1)
         y.append(tempC)
         graph.set_xdata(x)
