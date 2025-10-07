@@ -9,8 +9,5 @@ offSwitch.direction = digitalio.Direction.INPUT
 offSwitch.pull = digitalio.Pull.UP
 
 while True:
-    if not offSwitch.value:
-        print("Switch is off")
-    else:
-        print("switch is on")
+    print("Switch is {}".format(offSwitch.value))
     time.sleep(0.1)
