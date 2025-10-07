@@ -106,7 +106,7 @@ def update(frame):
     global yMax, graph, startTime, refreshPeriod, tempC
 
     if time.time() - startTime > refreshPeriod:
-        print("TempC = " + tempC)
+        print("TempC = ",tempC)
         x.append(x[-1] +1)
         y.append(tempC)
         graph.set_xdata(x)
