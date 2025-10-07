@@ -89,6 +89,12 @@ def error(code):
         case "1": print("Door open.")
         case "2": print("Element switch is off.")
         case "3": print("Thermal runaway.")
+
+def tempC():
+    return max31855.temperature
+
+def tempF():
+    return max31855.temperature * 9 / 5 + 32
 #------------------------------------------------------------------------------
 #                   do stuff
 #------------------------------------------------------------------------------
@@ -106,9 +112,9 @@ def update(frame):
     global yMax, graph, startTime, refreshPeriod, tempC
 
     if time.time() - startTime > refreshPeriod:
-        print("TempC = ",tempC)
+        print("TempC = ",tempC())
         x.append(x[-1] +1)
-        y.append(tempC)
+        y.append(tempC())
         graph.set_xdata(x)
         graph.set_ydata(y)
         plt.xlim(x[0], x[-1])
