@@ -102,9 +102,6 @@ fig, ax = plt.subplots()
 graph = ax.plot(x,y,color = 'g')[0]
 plt.ylim(0,yMax)
 
-anim = FuncAnimation(fig, update, frames = None)
-plt.show()
-
 def update(frame):
     global yMax, graph, waitStart, heatStartTime, heatStartTemp
 
