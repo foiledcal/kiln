@@ -51,7 +51,7 @@ waitStart = 0       #used in keeping PWM frequency
 heating = 0
 x = [1]             #plot x-axis value array
 y = [tempC]         #plot y-axis value array
-yMax = y[0] + 100   #sets the top value of the y-axis
+yMax = y[0]         #sets the top value of the y-axis
 refreshPeriod = 1
 startTime = time.time()
 #------------------------------------------------------------------------------
@@ -103,7 +103,7 @@ graph = ax.plot(x,y,color = 'g')[0]
 plt.ylim(0,yMax)
 
 def update(frame):
-    global yMax, graph, waitStart, heatStartTime, heatStartTemp
+    global yMax, graph, waitStart, heatStartTime, heatStartTemp, startTime
 
     if time.time() - startTime > refreshPeriod:
         x.append(x[-1] +1)
@@ -113,7 +113,7 @@ def update(frame):
         plt.xlim(x[0], x[-1])
         if y[-1] > yMax:
             yMax = y[-1]
-            plt.ylim(0, yMax)
+            plt.ylim(0, yMax + 10)
         startTime = time.time()
 
 anim = FuncAnimation(fig, update, frames = None)
