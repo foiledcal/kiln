@@ -91,7 +91,7 @@ def thermalRunawayCheck():
 def safetyCheck():
     global doorSwitch, offSwitch
     safe = True
-    if not offSwitch():
+    if not offSwitch.value:
         error(2)
         safe = False
     #thermalRunawayCheck()
