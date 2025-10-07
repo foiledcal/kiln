@@ -1,7 +1,13 @@
 #------------------------------------------------------------------------------
 #                   imports
 #------------------------------------------------------------------------------
-cimport matplotlib.pyplot as plt
+import board
+import busio
+import digitalio
+import time
+
+import adafruit_max31855
+import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 #from simple_pid import PID
 #import PIDPythonAI
@@ -26,8 +32,8 @@ doorSwitch = digitalio.DigitalInOut(board.D2)
 doorSwitch.direction = digitalio.Direction.INPUT
 doorSwitch.pull = digitalio.Pull.UP
 
-#soft off switch: 1 if open, 0 if closed
-offSwitch = digitalio.DigitalInOut(board.D3)
+#soft off switch: off is TRUE, on is FALSE
+offSwitch = digitalio.DigitalInOut(board.D18)
 offSwitch.direction = digitalio.Direction.INPUT
 offSwitch.pull = digitalio.Pull.UP
 #------------------------------------------------------------------------------
@@ -57,15 +63,11 @@ def tempC():
 def tempF():
     return max31855.temperature * 9 / 5 + 32
 
-def doorSwitch():
-    return digitalio.DigitalInOut(board.D2)
-
 def heatOff():
-    global safeToHeat, relay1, relay2, heating
-
-    safeToHeat = 0
+    global relay1, relay2, heating
     relay1.value = 0
     relay2.value = 0
+    heating = 0
 
 def heatOn():
     #variables for checking thermal runaway
@@ -89,9 +91,6 @@ def thermalRunawayCheck():
 def safetyCheck():
     global doorSwitch, offSwitch
     safe = True
-    if doorSwitch():
-        error(1)
-        safe = False
     if offSwitch():
         error(2)
         safe = False
@@ -120,7 +119,7 @@ def update(frame):
         if time.time() - startTime > refreshPeriod:
             #print("TempC = ",tempC())
             x.append(x[-1] +1)
-            y.append(tempC())
+            y.append(tempC)
             graph.set_xdata(x)
             graph.set_ydata(y)
             plt.xlim(x[0], x[-1])
