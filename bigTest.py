@@ -16,15 +16,15 @@ from matplotlib.animation import FuncAnimation
 #------------------------------------------------------------------------------
 #thermocouple amp
 spi = board.SPI()
-cs = digitalio.DigitalInOut(board.D5)
+cs = digitalio.DigitalInOut(board.D5)               #GPIO5
 max31855 = adafruit_max31855.MAX31855(spi, cs)
 tempC = max31855.temperature
 tempF = tempC * 9 / 5 + 32
 
 #relays
-relay1 = digitalio.DigitalInOut(board.D16)
+relay1 = digitalio.DigitalInOut(board.D16)          #GPIO23
 relay1.direction = digitalio.Direction.OUTPUT
-relay2 = digitalio.DigitalInOut(board.D18)
+relay2 = digitalio.DigitalInOut(board.D18)          #
 relay2.direction = digitalio.Direction.OUTPUT
 
 #door switch: 1 if open, 0 if closed
@@ -52,6 +52,8 @@ heating = 0
 x = [1]             #plot x-axis value array
 y = [tempC]         #plot y-axis value array
 yMax = y[0] + 100   #sets the top value of the y-axis
+refreshPeriod = 1
+startTime = time.time()
 #------------------------------------------------------------------------------
 #                   user-defined functions
 #------------------------------------------------------------------------------
@@ -90,7 +92,32 @@ def error(code):
 #------------------------------------------------------------------------------
 #                   do stuff
 #------------------------------------------------------------------------------
-while(True):
-    tempC = max31855.temperature
-    print('Temp = ', tempC)
-    time.sleep(1)
+#while(True):
+#    tempC = max31855.temperature
+#    print('Temp = ', tempC)
+#    time.sleep(1)
+
+
+fig, ax = plt.subplots()
+graph = ax.plot(x,y,color = 'g')[0]
+plt.ylim(0,yMax)
+
+anim = FuncAnimation(fig, update, frames = None)
+plt.show()
+
+def update(frame):
+    global yMax, graph, waitStart, heatStartTime, heatStartTemp
+
+    if time.time() - startTime > refreshPeriod:
+        x.append(x[-1] +1)
+        y.append(tempC)
+        graph.set_xdata(x)
+        graph.set_ydata(y)
+        plt.xlim(x[0], x[-1])
+        if y[-1] > yMax:
+            yMax = y[-1]
+            plt.ylim(0, yMax)
+        startTime = time.time()
+
+anim = FuncAnimation(fig, update, frames = None)
+plt.show()
