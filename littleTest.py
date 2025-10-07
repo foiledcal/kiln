@@ -13,7 +13,7 @@ max31855 = adafruit_max31855.MAX31855(spi, cs)
 #soft off switch: 1 if open, 0 if closed
 offSwitch = digitalio.DigitalInOut(board.D18)
 offSwitch.direction = digitalio.Direction.INPUT
-offSwitch.pull = digitalio.Pull.UP
+offSwitch.pull = digitalio.Pull.DOWN
 
 while True:
     if offSwitch.pull:
