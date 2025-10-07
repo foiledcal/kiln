@@ -103,7 +103,7 @@ graph = ax.plot(x,y,color = 'g')[0]
 plt.ylim(0,yMax)
 
 def update(frame):
-    global yMax, graph, waitStart, heatStartTime, heatStartTemp, startTime, refreshPeriod
+    global yMax, graph, waitStart, heatStartTime, heatStartTemp, startTime, refreshPeriod, tempC
 
     if time.time() - startTime > refreshPeriod:
         x.append(x[-1] +1)
