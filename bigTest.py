@@ -115,18 +115,18 @@ def error(code):
 def update(frame):
     global yMax, graph, startTime, refreshPeriod, tempC
 
-    while not safetyCheck():
-        if time.time() - startTime > refreshPeriod:
-            #print("TempC = ",tempC())
-            x.append(x[-1] +1)
-            y.append(tempC())
-            graph.set_xdata(x)
-            graph.set_ydata(y)
-            plt.xlim(x[0], x[-1])
-            if y[-1] > yMax:
-                yMax = y[-1]
-                plt.ylim(0, yMax + 10)
-            startTime = time.time()
+    #while not safetyCheck():
+    if time.time() - startTime > refreshPeriod:
+        #print("TempC = ",tempC())
+        x.append(x[-1] +1)
+        y.append(tempC())
+        graph.set_xdata(x)
+        graph.set_ydata(y)
+        plt.xlim(x[0], x[-1])
+        if y[-1] > yMax:
+            yMax = y[-1]
+            plt.ylim(0, yMax + 10)
+        startTime = time.time()
         
 
 #generate first frame 
