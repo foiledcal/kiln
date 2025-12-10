@@ -21,7 +21,7 @@ spi = board.SPI()
 cs = digitalio.DigitalInOut(board.D5)               #GPIO5
 max31855 = adafruit_max31855.MAX31855(spi, cs)
 
-tempTarget = 100
+tempTarget = 90
 refreshPeriod = 2
 
 def tempC():
