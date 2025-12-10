@@ -11,10 +11,17 @@ relay1.direction = digitalio.Direction.OUTPUT
 relay2 = digitalio.DigitalInOut(board.D27)          
 relay2.direction = digitalio.Direction.OUTPUT
 
+#soft off switch: off is TRUE, on is FALSE
+offSwitch = digitalio.DigitalInOut(board.D26)
+offSwitch.direction = digitalio.Direction.INPUT
+offSwitch.pull = digitalio.Pull.UP
+
 while True:
-    relay1.value = 0
-    relay2.value = 0
-    time.sleep(0.1)
-    relay1.value = 1
-    relay2.value = 1
-    time.sleep(0.1)
+    if not offSwitch:
+        relay1.value = 0
+        relay2.value = 0
+        time.sleep(0.1)
+    else:
+        relay1.value = 1
+        relay2.value = 1
+        time.sleep(0.1)
