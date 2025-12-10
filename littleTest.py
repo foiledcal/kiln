@@ -17,4 +17,4 @@ while True:
     time.sleep(0.1)
     relay1.value = 1
     relay2.value = 1
-    time.speed(0.1)
+    time.sleep(0.1)
