@@ -13,5 +13,5 @@ relay1.direction = digitalio.Direction.OUTPUT
 relay2 = digitalio.DigitalInOut(board.D27)          
 relay2.direction = digitalio.Direction.OUTPUT
 
-relay1.value = 1
-relay2.value = 1
+relay1.value = 0
+relay2.value = 0
