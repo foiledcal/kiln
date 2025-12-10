@@ -24,9 +24,9 @@ tempC = max31855.temperature
 tempF = tempC * 9 / 5 + 32
 
 #relays
-relay1 = digitalio.DigitalInOut(board.D22)          
+relay1 = digitalio.DigitalInOut(board.D24)          
 relay1.direction = digitalio.Direction.OUTPUT
-relay2 = digitalio.DigitalInOut(board.D27)          
+relay2 = digitalio.DigitalInOut(board.D23)          
 relay2.direction = digitalio.Direction.OUTPUT
 
 #door switch: 1 if open, 0 if closed
@@ -34,10 +34,10 @@ doorSwitch = digitalio.DigitalInOut(board.D2)
 doorSwitch.direction = digitalio.Direction.INPUT
 doorSwitch.pull = digitalio.Pull.UP
 
-#soft off switch: off is TRUE, on is FALSE
-offSwitch = digitalio.DigitalInOut(board.D26)
-offSwitch.direction = digitalio.Direction.INPUT
-offSwitch.pull = digitalio.Pull.UP
+#arming switch: off is False, on is True
+armSwitch = digitalio.DigitalInOut(board.D26)
+armSwitch.direction = digitalio.Direction.INPUT
+armSwitch.pull = digitalio.Pull.UP
 #------------------------------------------------------------------------------
 #                   variables
 #------------------------------------------------------------------------------
@@ -91,10 +91,10 @@ def thermalRunawayCheck():
         error("thermRun")
 
 def safetyCheck():
-    global doorSwitch, offSwitch
+    global doorSwitch, armSwitch
     safe = True
-    if not offSwitch.value:
-        error("offSwitch")
+    if not armSwitch.value:
+        error("armSwitch")
         safe = False
     #thermalRunawayCheck()
     return safe
