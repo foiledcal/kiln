@@ -36,12 +36,13 @@ startTime = time.time()
 
 
 while True:
-    if not armSwitch:
+    if not armSwitch.value:
         relay1.value = 0
         relay2.value = 0
 
     if time.time() - startTime > refreshPeriod:
         print(tempF())
+        startTime = time.time()
         if armSwitch.value:
             if tempF() < tempTarget:
                 relay1.value = 1
@@ -49,7 +50,7 @@ while True:
             else:
                 relay1.value = 0
                 relay2.value = 0
-        startTime = time.time()
+
         
         
 while True:
