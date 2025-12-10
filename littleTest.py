@@ -17,7 +17,8 @@ offSwitch.direction = digitalio.Direction.INPUT
 offSwitch.pull = digitalio.Pull.UP
 
 while True:
-    if not offSwitch:
+    print(offSwitch.value)
+    if not offSwitch.value:
         relay1.value = 0
         relay2.value = 0
         time.sleep(0.1)
