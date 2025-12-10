@@ -34,17 +34,6 @@ relay1.value = 0
 relay2.value = 0
 startTime = time.time()
 
-while True:
-    print(armSwitch.value)
-    if armSwitch.value:
-        relay1.value = 0
-        relay2.value = 0
-        time.sleep(0.5)
-    else:
-        relay1.value = 1
-        relay2.value = 1
-        time.sleep(0.5)
-
 
 while True:
     if not armSwitch:
@@ -61,3 +50,15 @@ while True:
                 relay1.value = 0
                 relay2.value = 0
         startTime = time.time()
+        
+        
+while True:
+    print(armSwitch.value)
+    if armSwitch.value:
+        relay1.value = 0
+        relay2.value = 0
+        time.sleep(0.5)
+    else:
+        relay1.value = 1
+        relay2.value = 1
+        time.sleep(0.5)
