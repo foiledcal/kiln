@@ -20,11 +20,15 @@ armSwitch.pull = digitalio.Pull.UP
 spi = board.SPI()
 cs = digitalio.DigitalInOut(board.D5)               #GPIO5
 max31855 = adafruit_max31855.MAX31855(spi, cs)
-tempC = max31855.temperature
-tempF = tempC * 9 / 5 + 32
 
 tempTarget = 100
 refreshPeriod = 2
+
+def tempC():
+    return max31855.temperature
+
+def tempF():
+    return max31855.temperature * 9 / 5 + 32
 
 relay1.value = 0
 relay2.value = 0
@@ -36,9 +40,9 @@ while True:
         relay2.value = 0
 
     if time.time() - startTime > refreshPeriod:
-        print(tempF)
+        print(tempF())
         if armSwitch.value:
-            if tempF < tempTarget:
+            if tempF() < tempTarget:
                 relay1.value = 1
                 relay2.value = 1
             else:
