@@ -34,21 +34,7 @@ relay1.value = 0
 relay2.value = 0
 startTime = time.time()
 
-while True:
-    if not armSwitch:
-        relay1.value = 0
-        relay2.value = 0
 
-    if time.time() - startTime > refreshPeriod:
-        print(tempF())
-        if armSwitch.value:
-            if tempF() < tempTarget:
-                relay1.value = 1
-                relay2.value = 1
-            else:
-                relay1.value = 0
-                relay2.value = 0
-        startTime = time.time()
 
     
 
@@ -66,3 +52,20 @@ while True:
         relay1.value = 1
         relay2.value = 1
         time.sleep(0.5)
+
+
+while True:
+    if not armSwitch:
+        relay1.value = 0
+        relay2.value = 0
+
+    if time.time() - startTime > refreshPeriod:
+        print(tempF())
+        if armSwitch.value:
+            if tempF() < tempTarget:
+                relay1.value = 1
+                relay2.value = 1
+            else:
+                relay1.value = 0
+                relay2.value = 0
+        startTime = time.time()
