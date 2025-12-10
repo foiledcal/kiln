@@ -34,14 +34,6 @@ relay1.value = 0
 relay2.value = 0
 startTime = time.time()
 
-
-
-    
-
-
-
-
-
 while True:
     print(armSwitch.value)
     if armSwitch.value:
