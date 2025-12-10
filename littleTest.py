@@ -3,11 +3,15 @@ import busio
 import digitalio
 import time
 
-#soft off switch: 1 if open, 0 if closed
-offSwitch = digitalio.DigitalInOut(board.D18)
-offSwitch.direction = digitalio.Direction.INPUT
-offSwitch.pull = digitalio.Pull.UP
+import adafruit_max31855
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
-while True:
-    print("Switch is {}".format(offSwitch.value))
-    time.sleep(0.1)
+#relays
+relay1 = digitalio.DigitalInOut(board.D22)          
+relay1.direction = digitalio.Direction.OUTPUT
+relay2 = digitalio.DigitalInOut(board.D27)          
+relay2.direction = digitalio.Direction.OUTPUT
+
+relay1.value = 1
+relay2.value = 1

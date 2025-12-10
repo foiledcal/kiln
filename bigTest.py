@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 #from simple_pid import PID
 #import PIDPythonAI
+
+#https://www.etechnophiles.com/raspberry-pi-3-b-pinout-with-gpio-functions-schematic-and-specs-in-detail/
 #------------------------------------------------------------------------------
 #                   IO setup
 #------------------------------------------------------------------------------
@@ -22,9 +24,9 @@ tempC = max31855.temperature
 tempF = tempC * 9 / 5 + 32
 
 #relays
-relay1 = digitalio.DigitalInOut(board.D16)          
+relay1 = digitalio.DigitalInOut(board.D22)          
 relay1.direction = digitalio.Direction.OUTPUT
-relay2 = digitalio.DigitalInOut(board.D18)          
+relay2 = digitalio.DigitalInOut(board.D27)          
 relay2.direction = digitalio.Direction.OUTPUT
 
 #door switch: 1 if open, 0 if closed
@@ -33,7 +35,7 @@ doorSwitch.direction = digitalio.Direction.INPUT
 doorSwitch.pull = digitalio.Pull.UP
 
 #soft off switch: off is TRUE, on is FALSE
-offSwitch = digitalio.DigitalInOut(board.D18)
+offSwitch = digitalio.DigitalInOut(board.D26)
 offSwitch.direction = digitalio.Direction.INPUT
 offSwitch.pull = digitalio.Pull.UP
 #------------------------------------------------------------------------------
@@ -86,13 +88,13 @@ def thermalRunawayCheck():
     #if heating for 5s and temp not risen more than 10%
     if time.time() - heatStartTime > 5 and tempC  < heatStartTemp * 1.1:
         heatOff()
-        error(3)
+        error("thermRun")
 
 def safetyCheck():
     global doorSwitch, offSwitch
     safe = True
     if not offSwitch.value:
-        error(2)
+        error("offSwitch")
         safe = False
     #thermalRunawayCheck()
     return safe
@@ -102,9 +104,9 @@ def error(code):
     heatOff()
     print("Error {}: ".format(code))
     match code:
-        case "1": print("Door open.")
+        case "doorSwitch": print("Door open.")
         case "2": print("Element switch is off.")
-        case "3": print("Thermal runaway.")
+        case "thermRun": print("Thermal runaway.")
 
 
 #------------------------------------------------------------------------------

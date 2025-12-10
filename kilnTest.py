@@ -117,7 +117,7 @@ def update(frame):
     thermalRunawayCheck()
 
     #PID heat control
-    compute()
+    #compute()
 
     #bang-bang heat control
     if time.time() > waitStart + pwmPeriod:     #if it's time to check
