@@ -14,7 +14,7 @@ relay2.direction = digitalio.Direction.OUTPUT
 #soft off switch: off is TRUE, on is FALSE
 armSwitch = digitalio.DigitalInOut(board.D26)
 armSwitch.direction = digitalio.Direction.INPUT
-armSwitch.pull = digitalio.Pull.UP
+armSwitch.pull = digitalio.Pull.DOWN
 
 #thermocouple amp
 spi = board.SPI()
