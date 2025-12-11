@@ -11,10 +11,15 @@ relay1.direction = digitalio.Direction.OUTPUT
 relay2 = digitalio.DigitalInOut(board.D23)          
 relay2.direction = digitalio.Direction.OUTPUT
 
-#soft off switch: off is TRUE, on is FALSE
+#arming switch: off is FALSE, on is TRUE
 armSwitch = digitalio.DigitalInOut(board.D26)
 armSwitch.direction = digitalio.Direction.INPUT
 armSwitch.pull = digitalio.Pull.DOWN
+
+#door switch: 1 if open, 0 if closed
+doorSwitch = digitalio.DigitalInOut(board.D6)
+doorSwitch.direction = digitalio.Direction.INPUT
+doorSwitch.pull = digitalio.Pull.DOWN
 
 #thermocouple amp
 spi = board.SPI()
@@ -42,6 +47,7 @@ while True:
 
     if time.time() - startTime > refreshPeriod:
         print(tempF())
+        print(armSwitch.value)
         startTime = time.time()
         if armSwitch.value:
             if tempF() < tempTarget:
@@ -51,15 +57,3 @@ while True:
                 relay1.value = 0
                 relay2.value = 0
 
-        
-        
-while True:
-    print(armSwitch.value)
-    if armSwitch.value:
-        relay1.value = 0
-        relay2.value = 0
-        time.sleep(0.5)
-    else:
-        relay1.value = 1
-        relay2.value = 1
-        time.sleep(0.5)
