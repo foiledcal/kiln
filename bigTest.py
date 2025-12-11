@@ -76,7 +76,7 @@ def heatOn():
     global heatStartTime, heatStartTemp, relay1, relay2, heating
 
     heatStartTime = time.time()
-    heatStartTemp = tempC
+    heatStartTemp = tempC()
 
     if safeToHeat:
         relay1.value = 1
