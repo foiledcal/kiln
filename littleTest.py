@@ -16,7 +16,7 @@ armSwitch = digitalio.DigitalInOut(board.D26)
 armSwitch.direction = digitalio.Direction.INPUT
 armSwitch.pull = digitalio.Pull.DOWN
 
-#door switch: 1 if open, 0 if closed
+#door switch: closed circuit is FALSE, open circuit is TRUE
 doorSwitch = digitalio.DigitalInOut(board.D6)
 doorSwitch.direction = digitalio.Direction.INPUT
 doorSwitch.pull = digitalio.Pull.DOWN
@@ -35,25 +35,41 @@ def tempC():
 def tempF():
     return max31855.temperature * 9 / 5 + 32
 
-relay1.value = 0
-relay2.value = 0
-startTime = time.time()
+def safetyCheck():
+    if armSwitch.value and doorSwitch.value:
+        return "safe"
+    else:
+        return "notSafe"
 
-
-while True:
-    if not armSwitch.value:
+def heatOn():
+    global relay1, relay2
+    if safetyCheck() == "safe":
+        relay1.value = 1
+        relay2.value = 1
+    else:
         relay1.value = 0
         relay2.value = 0
 
-    if time.time() - startTime > refreshPeriod:
-        print(tempF())
-        print(doorSwitch.value)
-        startTime = time.time()
-        if armSwitch.value:
-            if tempF() < tempTarget:
-                relay1.value = 1
-                relay2.value = 1
-            else:
-                relay1.value = 0
-                relay2.value = 0
+def heatOff():
+    global relay1, relay2
+    relay1.value = 0
+    relay2.value = 0
 
+
+relay1.value = 0
+relay2.value = 0
+bangStartTime = time.time()
+
+while True:
+    #safety check first
+    if safetyCheck() == "notSafe":
+        heatOff()
+
+    #Bang-bang period check
+    if time.time() - bangStartTime > refreshPeriod:
+        print(tempF())
+        bangStartTime = time.time()
+        if tempF() < tempTarget:
+            heatOn()
+        else:
+            heatOff()

@@ -18,7 +18,7 @@ from matplotlib.animation import FuncAnimation
 #------------------------------------------------------------------------------
 #thermocouple amp
 spi = board.SPI()
-cs = digitalio.DigitalInOut(board.D5)               #GPIO5
+cs = digitalio.DigitalInOut(board.D5)
 max31855 = adafruit_max31855.MAX31855(spi, cs)
 tempC = max31855.temperature
 tempF = tempC * 9 / 5 + 32
@@ -29,10 +29,10 @@ relay1.direction = digitalio.Direction.OUTPUT
 relay2 = digitalio.DigitalInOut(board.D23)          
 relay2.direction = digitalio.Direction.OUTPUT
 
-#door switch: 1 if open, 0 if closed
-doorSwitch = digitalio.DigitalInOut(board.D2)
+#door switch: closed circuit is FALSE, open circuit is TRUE
+doorSwitch = digitalio.DigitalInOut(board.D6)
 doorSwitch.direction = digitalio.Direction.INPUT
-doorSwitch.pull = digitalio.Pull.UP
+doorSwitch.pull = digitalio.Pull.DOWN
 
 #arming switch: off is False, on is True
 armSwitch = digitalio.DigitalInOut(board.D26)
