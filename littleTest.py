@@ -47,7 +47,7 @@ while True:
 
     if time.time() - startTime > refreshPeriod:
         print(tempF())
-        print(armSwitch.value)
+        print(doorSwitch.value)
         startTime = time.time()
         if armSwitch.value:
             if tempF() < tempTarget:
