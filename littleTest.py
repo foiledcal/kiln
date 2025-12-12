@@ -45,39 +45,37 @@ max31855 = adafruit_max31855.MAX31855(spi, cs)
 tempTarget = 90
 bangPeriod = 2
 plotPeriod = 2
+thermRunCheckPer = 10
 
 #global
 heating = False
 safeToHeat = False
-heatStartTime = time.time()
-heatStopTime = time.time()
+heatStartTime = 0.0
+heatStopTime = 0.0
+heatStopTemp = 0
 relay1.value = 0
 relay2.value = 0
-bangStartTime = time.time()
+bangStartTime = 0.0
 x = [1]             #plot x-axis value array
-y = [100]           #plot y-axis value array
+y = [1]             #plot y-axis value array
 yMax = y[0]         #sets the top value of the y-axis
-plotStartTime = time.time()
+plotStartTime = 0.0
 
 #------------------------------------------------------------------------------
 #                   user-defined functions
 #------------------------------------------------------------------------------
 
-def tempC():
-    return max31855.temperature
-
-def tempF():
-    return max31855.temperature * 9 / 5 + 32
-
-def switchCheck():
-    if armSwitch.value and doorSwitch.value:
-        return "safe"
-    else:
-        return "notSafe"
+def heatOff():
+    global relay1, relay2, heating, heatStopTime, heatStopTemp
+    relay1.value = 0
+    relay2.value = 0
+    heating = False
+    heatStopTime = time.time()
+    heatStopTemp = tempC()
 
 def heatOn():
     global relay1, relay2, heating, heatStartTime
-    if switchCheck() == "safe":
+    if safeToHeat:
         relay1.value = 1
         relay2.value = 1
         if not heating:
@@ -87,34 +85,27 @@ def heatOn():
         relay1.value = 0
         relay2.value = 0
 
-def heatOff():
-    global relay1, relay2, heating, heatStopTime
-    relay1.value = 0
-    relay2.value = 0
-    heating = False
-    heatStopTime = time.time()
+def switchCheck():
+    if armSwitch.value and doorSwitch.value:
+        return "safe"
+    else:
+        return "notSafe"
+
+def tempC():
+    return max31855.temperature
+
+def tempF():
+    return max31855.temperature * 9 / 5 + 32
+
+def thermalRunawayCheck():
+    global safeToHeat
+    if time.time() - heatStopTime > thermRunCheckPer and tempC() > heatStopTemp:
+        heatOff()
+        safeToHeat = False
 
 #------------------------------------------------------------------------------
 #                   do stuff
 #------------------------------------------------------------------------------
-
-#while True:
-#    #check switches
-#    if switchCheck() == "notSafe":
-#        heatOff()
-#        safeToHeat = False
-#
-#    #check thermal runaway
-#
-#
-#    #Bang-bang period check
-#    if time.time() - bangStartTime > bangPeriod:
-#        print(tempF())
-#        bangStartTime = time.time()
-#        if tempF() < tempTarget and safeToHeat:
-#            heatOn()
-#        else:
-#            heatOff()
 
 #main loop
 def update(frame):
@@ -124,8 +115,11 @@ def update(frame):
     if switchCheck() == "notSafe":
         heatOff()
         safeToHeat = False
+    else:
+        safeToHeat = True
 
     #check thermal runaway
+    #thermalRunawayCheck()
 
     #Bang-bang period check
     if time.time() - bangStartTime > bangPeriod:
