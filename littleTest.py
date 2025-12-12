@@ -124,17 +124,17 @@ def update(frame):
     #check thermal runaway
     if time.time() - heatStopTime > thermRunCheckPer:
         #add different types of thermal runaway checks
+        #add temp sensor to outside of kiln and inside controller enclosure
         if not heating and tempC() > heatStopTemp:
-            heatOff()
             emergency = True
-            safeToHeat = False
     
     if emergency:
+        heatOff()
         return
 
     #Bang-bang period check
     if time.time() - bangStartTime > bangPeriod:
-        print(tempC())
+        print("TempC = ",tempC())
         print(safeToHeat)
         bangStartTime = time.time()
         if tempF() < tempTarget:
@@ -144,7 +144,6 @@ def update(frame):
 
     #update plot
     if time.time() - plotStartTime > plotPeriod:
-        #print("TempC = ",tempC())
         x.append(x[-1] +1)
         y.append(tempC())
         graph.set_xdata(x)
