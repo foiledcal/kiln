@@ -128,6 +128,9 @@ def update(frame):
             heatOff()
             emergency = True
             safeToHeat = False
+    
+    if emergency:
+        return
 
     #Bang-bang period check
     if time.time() - bangStartTime > bangPeriod:
