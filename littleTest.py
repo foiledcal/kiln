@@ -124,6 +124,7 @@ def update(frame):
     #Bang-bang period check
     if time.time() - bangStartTime > bangPeriod:
         print(tempF())
+        print(safeToHeat)
         bangStartTime = time.time()
         if tempF() < tempTarget and safeToHeat:
             heatOn()
