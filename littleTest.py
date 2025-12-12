@@ -99,7 +99,7 @@ def tempC():
         print("Thermocouple amp error, halting operation.")
         emergency = True
     else:
-        return max31855.temperature
+        return temp
 
 def tempF():
     return tempC() * 9 / 5 + 32
@@ -125,7 +125,7 @@ def update(frame):
         heatOff()
         emergency = True
         safeToHeat = False
-
+        print(emergency)
 
     #Bang-bang period check
     if time.time() - bangStartTime > bangPeriod:
