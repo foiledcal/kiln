@@ -99,6 +99,7 @@ def tempC():
         else:
             print("Thermocouple amp error, halting operation.")
             emergency = True
+        return 0
     else:
         return temp
 
