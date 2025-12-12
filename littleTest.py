@@ -50,7 +50,9 @@ thermRunCheckPer = 10
 #global
 heating = False
 safeToHeat = False
+emergency = False
 heatStartTime = 0.0
+heatStartTemp = 0.0
 heatStopTime = 0.0
 heatStopTemp = 0
 relay1.value = 0
@@ -69,39 +71,38 @@ def heatOff():
     global relay1, relay2, heating, heatStopTime, heatStopTemp
     relay1.value = 0
     relay2.value = 0
-    heating = False
-    heatStopTime = time.time()
-    heatStopTemp = tempC()
+    if heating:
+        heating = False
+        heatStopTime = time.time()
+        heatStopTemp = tempC()
 
 def heatOn():
-    global relay1, relay2, heating, heatStartTime
-    if safeToHeat:
+    global relay1, relay2, heating, heatStartTime, heatStartTemp
+    if safeToHeat and not emergency:
         relay1.value = 1
         relay2.value = 1
         if not heating:
             heating = True
             heatStartTime = time.time()
+            heatStartTemp = tempC()
     else:
-        relay1.value = 0
-        relay2.value = 0
-
-def switchCheck():
-    if armSwitch.value and doorSwitch.value:
-        return "safe"
-    else:
-        return "notSafe"
+        heatOff()
 
 def tempC():
-    return max31855.temperature
+    global emergency
+    try:
+        temp = max31855.temperature
+    except "thermocouple not connected":
+        print("Thermocouple disconnected, halting operation.")
+        emergency = True
+    except:
+        print("Thermocouple amp error, halting operation.")
+        emergency = True
+    else:
+        return max31855.temperature
 
 def tempF():
-    return max31855.temperature * 9 / 5 + 32
-
-def thermalRunawayCheck():
-    global safeToHeat
-    if time.time() - heatStopTime > thermRunCheckPer and tempC() > heatStopTemp:
-        heatOff()
-        safeToHeat = False
+    return tempC() * 9 / 5 + 32
 
 #------------------------------------------------------------------------------
 #                   do stuff
@@ -109,24 +110,29 @@ def thermalRunawayCheck():
 
 #main loop
 def update(frame):
-    global safeToHeat, bangStartTime, yMax, graph, plotStartTime, plotPeriod
+    global safeToHeat, bangStartTime, yMax, graph, plotStartTime, plotPeriod, emergency
 
     #check switches
-    if switchCheck() == "notSafe":
+    if armSwitch.value and doorSwitch.value:
+        safeToHeat = True
+    else:
         heatOff()
         safeToHeat = False
-    else:
-        safeToHeat = True
 
     #check thermal runaway
-    #thermalRunawayCheck()
+    if time.time() - heatStopTime > thermRunCheckPer and tempC() > heatStopTemp:
+        #add different types of thermal runaway checks
+        heatOff()
+        emergency = True
+        safeToHeat = False
+
 
     #Bang-bang period check
     if time.time() - bangStartTime > bangPeriod:
-        print(tempF())
+        print(tempC())
         print(safeToHeat)
         bangStartTime = time.time()
-        if tempF() < tempTarget and safeToHeat:
+        if tempF() < tempTarget:
             heatOn()
         else:
             heatOff()
