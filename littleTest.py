@@ -53,7 +53,7 @@ safeToHeat = False
 emergency = False
 heatStartTime = 0.0
 heatStartTemp = 0.0
-heatStopTime = 0.0
+heatStopTime = time.time()
 heatStopTemp = 0
 relay1.value = 0
 relay2.value = 0
@@ -120,12 +120,12 @@ def update(frame):
         safeToHeat = False
 
     #check thermal runaway
-    if time.time() - heatStopTime > thermRunCheckPer and tempC() > heatStopTemp:
+    if time.time() - heatStopTime > thermRunCheckPer:
         #add different types of thermal runaway checks
-        heatOff()
-        emergency = True
-        safeToHeat = False
-        print(emergency)
+        if not heating and tempC() > heatStopTemp:
+            heatOff()
+            emergency = True
+            safeToHeat = False
 
     #Bang-bang period check
     if time.time() - bangStartTime > bangPeriod:
