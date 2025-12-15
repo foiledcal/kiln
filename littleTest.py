@@ -145,7 +145,7 @@ def update(frame):
     #update plot
     if time.time() - plotStartTime > plotPeriod:
         #update data file
-        f.write(time.time() + ", " + tempC() + "," + heating + '\n')
+        f.write(str(time.time()) + ", " + str(tempC()) + "," + str(heating) + '\n')
         
         x.append(x[-1] +1)
         y.append(tempC())
