@@ -140,7 +140,7 @@ def update(frame):
         print(emergency)
         print(heating)
         bangStartTime = time.time()
-        if tempF() < tempTarget:
+        if tempC() < tempTarget:
             heatOn()
         else:
             heatOff()
