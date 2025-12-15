@@ -45,7 +45,7 @@ max31855 = adafruit_max31855.MAX31855(spi, cs)
 tempTarget = 90
 bangPeriod = 2
 plotPeriod = 2
-thermRunCheckPer = 10
+thermRunCheckPer = 30
 
 #global
 heating = False
@@ -144,6 +144,9 @@ def update(frame):
 
     #update plot
     if time.time() - plotStartTime > plotPeriod:
+        #update data file
+        f.write(time.time() + ", " + tempC() + "," + heating + '\n')
+        
         x.append(x[-1] +1)
         y.append(tempC())
         graph.set_xdata(x)
@@ -153,7 +156,12 @@ def update(frame):
             yMax = y[-1]
             plt.ylim(0, yMax + 10)
         plotStartTime = time.time()
+
+
         
+
+#file init
+f = open('data.txt', 'w')
 
 #generate first frame 
 fig, ax = plt.subplots()
