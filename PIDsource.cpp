@@ -1,4 +1,7 @@
 //working variables
+#include <stdio.h>
+#include <time.h>
+
 unsigned long lastTime;
 double Input, Output, Setpoint;
 double ITerm, lastInput;

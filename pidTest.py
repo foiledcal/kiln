@@ -1,9 +1,6 @@
-#$ source env/bin/activate
-#$ cd /home/pi/mu_code
-#$ python kilnTest.py
-#-----------------------------------------------------------
-#imports
-#-----------------------------------------------------------
+#------------------------------------------------------------------------------
+#                   imports
+#------------------------------------------------------------------------------
 import board
 import busio
 import digitalio
@@ -12,155 +9,112 @@ import time
 import adafruit_max31855
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-#from simple_pid import PID
-import PIDPythonAI
-#-------------------------------------------------------------------------------
-#IO setup
-#-------------------------------------------------------------------------------
+from simple_pid import PID
+
+#https://www.etechnophiles.com/raspberry-pi-3-b-pinout-with-gpio-functions-schematic-and-specs-in-detail/
+
+#------------------------------------------------------------------------------
+#                   IO setup
+#------------------------------------------------------------------------------
+
+#relays
+relay1 = digitalio.DigitalInOut(board.D24)          
+relay1.direction = digitalio.Direction.OUTPUT
+relay2 = digitalio.DigitalInOut(board.D23)          
+relay2.direction = digitalio.Direction.OUTPUT
+
+#arming switch: off is FALSE, on is TRUE
+armSwitch = digitalio.DigitalInOut(board.D26)
+armSwitch.direction = digitalio.Direction.INPUT
+armSwitch.pull = digitalio.Pull.DOWN
+
+#door switch: closed circuit is FALSE, open circuit is TRUE
+doorSwitch = digitalio.DigitalInOut(board.D6)
+doorSwitch.direction = digitalio.Direction.INPUT
+doorSwitch.pull = digitalio.Pull.DOWN
+
 #thermocouple amp
 spi = board.SPI()
 cs = digitalio.DigitalInOut(board.D5)
 max31855 = adafruit_max31855.MAX31855(spi, cs)
-tempC = max31855.temperature
-tempF = tempC * 9 / 5 + 32
 
-#relays
-relay1 = digitalio.DigitalInOut(board.D16)
-relay1.direction = digitalio.Direction.OUTPUT
-relay2 = digitalio.DigitalInOut(board.D18)
-relay2.direction = digitalio.Direction.OUTPUT
+#------------------------------------------------------------------------------
+#                   variables
+#------------------------------------------------------------------------------
 
-#door switch: 1 if open, 0 if closed
-doorSwitch = digitalio.DigitalInOut(board.D2)
-doorSwitch.direction = digitalio.Direction.INPUT
-doorSwitch.pull = digitalio.Pull.UP
+#user-defined
+tempTarget = 90
+bangPeriod = 2
+pidPeriod = 1
+plotPeriod = 2
+thermRunCheckPer = 10
 
-#soft off switch: 1 if open, 0 if closed
-offSwitch = digitalio.DigitalInOut(board.D3)
-offSwitch.direction = digitalio.Direction.INPUT
-offSwitch.pull = digitalio.Pull.UP
-#-------------------------------------------------------------------------------
-#variables
-#-------------------------------------------------------------------------------
-#user defined variables
-pwmPeriod = 2                   #2s update period should be responsive enough
-targetTemp = 1080               #hard-coded target lol
-
-#control variables
-outputRes = 120 * pwmPeriod     #120 zero-crossings per second
-safeToHeat = 1                  #controls whether relays can be enabled
-heatStartTime = 0               #used in thermal runaway checks
-heatStartTemp = 0               #used in thermal runaway checks
-pulseStart = 0                #used in keeping PWM frequency
-oldOutput = 0                   #helps check if new orders from pwm
-
-#plotting variables
+#global
+heating = False
+safeToHeat = False
+emergency = False
+heatStartTime = 0.0
+heatStartTemp = 0.0
+heatStopTime = time.time()
+heatStopTemp = 0
+relay1.value = 0
+relay2.value = 0
+bangStartTime = 0.0
 x = [1]             #plot x-axis value array
-y = [tempC]         #plot y-axis value array
-yMax = y[0] + 100   #sets the top value of the y-axis
-#-------------------------------------------------------------------------------
-#user-defined functions
-#-------------------------------------------------------------------------------
+y = [1]             #plot y-axis value array
+yMax = y[0]         #sets the top value of the y-axis
+plotStartTime = 0.0
+
+#------------------------------------------------------------------------------
+#                   user-defined functions
+#------------------------------------------------------------------------------
+
 def heatOff():
-    global relay1, relay2, heating
+    global relay1, relay2, heating, heatStopTime, heatStopTemp
     relay1.value = 0
     relay2.value = 0
-    heating = 0
+    if heating:
+        heating = False
+        heatStopTime = time.time()
+        heatStopTemp = tempC()
 
 def heatOn():
-    #variables for checking thermal runaway
-    global heatStartTime, heatStartTemp, relay1, relay2, heating
-
-    heatStartTime = time.time()
-    heatStartTemp = tempC
-
-    if safeToHeat:
+    global relay1, relay2, heating, heatStartTime, heatStartTemp
+    if safeToHeat and not emergency:
         relay1.value = 1
         relay2.value = 1
-        heating = 1
-
-def heating():
-    if relay1.value == 1 or relay2.value == 1: return 1
-    else: return 0
-
-def thermalRunawayCheck():
-    #if heating for 5s and temp not risen more than 10 degrees (may need to be adjusted)
-    if time.time() - heatStartTime > 5 and tempC  < heatStartTemp + 10:
+        if not heating:
+            heating = True
+            heatStartTime = time.time()
+            heatStartTemp = tempC()
+    else:
         heatOff()
-        error(3)
 
-    #if cooling for 5s and temp not fallen more than 10 degrees
-    elif time.time() - heatStartTime > 5 and tempC > heatStartTemp - 10:
-        heatOff()
-        error(4)
-
-def error(code):
-    heatOff()
-    safeToHeat = 0
-    print("Error {}: ".format(code))
-    match code:
-        case "1": print("Door open.")
-        case "2": print("Element switch is off.")
-        case "3": print("Thermal runaway.")
-        case "4": print("Unexpected heating.")
-
-#updates the data and graph
-def update(frame):
-    global yMax, graph, pulseStart, heatStartTime, heatStartTemp, oldOutput
-
-    #safety checks
-    #if doorSwitch: error(1)
-    #if offSwitch: error(2)
-    thermalRunawayCheck()
-
-    #PWM
-    pidOutput = PIDPythonAI.compute()
-
-    #check for an update from PWM
-    if pidOutput != oldOutput:              #pwm updated, new orders
-        oldOutput = pidOutput               #update oldOutput
-        if pidOutput == 240:                #set heat to on until next update
-            heatOn()
-        elif pidOutput == 0:                #set heat to off until next update
-                heatOff()
+def tempC():
+    global emergency
+    try:
+        temp = max31855.temperature
+    except Exception as e:
+        if e == "thermocouple not connected":
+            print("Thermocouple disconnected, halting operation.")
+            emergency = True
         else:
-            pulseStart = time.time()
-            heatOn()
+            print("Thermocouple amp error, halting operation.")
+            emergency = True
+        return 0
+    else:
+        return temp
 
-    #if in the middle of a partial heating period
-    print(pidOutput)
-    if time.time() > pulseStart + pidOutput / 120:
-        pulseStart = 0    #reset pulse timer
-        heatOff()         #stop heating 
+def tempF():
+    return tempC() * 9 / 5 + 32
 
-    #update the plot
-    x.append(x[-1] + 1)
-    y.append(tempC)
-    graph.set_xdata(x)
-    graph.set_ydata(y)
-    plt.xlim(x[0], x[-1])
-    if y[-1] > yMax - 100:      #update y axis range
-        yMax = y[-1] = 100
-        plt.ylim(0, yMax)
-#-------------------------------------------------------------------------------
-#do stuff
-#-------------------------------------------------------------------------------
-#PID setup
-PIDPythonAI.SetOutputLimits(0,outputRes)     #how many SSR zero-crossings to be on for
-PIDPythonAI.SetSampleTime(pwmPeriod)
+#------------------------------------------------------------------------------
+#                   do stuff
+#------------------------------------------------------------------------------
 
-#create first plot and frame
-fig, ax = plt.subplots()
-graph = ax.plot(x,y,color = 'g')[0]
-plt.ylim(0,yMax)
+pid = PID(1, 0.1, 0.05, setpoint = tempTarget)
+pid.output_limits = (0, 100)
+pid.sample_time = pidPeriod
 
-#do not progress until door is shut and soft switch is on
-while not safeToHeat:
-    if not doorSwitch and not offSwitch: safeToHeat = 1
-
-#start plotting
-anim = FuncAnimation(fig, update, frames = None)
-plt.show()                     #from here, the program will loop within update()
-
-
-
+power = pid(tempC())
+print(power)
