@@ -162,7 +162,7 @@ def update(frame):
         
 
 #file init
-f = open('data.txt', 'w')
+#f = open('data.txt', 'w')
 
 #generate first frame 
 fig, ax = plt.subplots()
