@@ -137,6 +137,7 @@ def update(frame):
         print("TempC = ",tempC())
         #print(doorSwitch)
         print(safeToHeat)
+        print(emergency)
         bangStartTime = time.time()
         if tempF() < tempTarget:
             heatOn()
