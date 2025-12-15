@@ -113,60 +113,52 @@ def tempF():
 #main loop
 def update(frame):
     global safeToHeat, bangStartTime, yMax, graph, plotStartTime, plotPeriod, emergency
-    try:
-        #check switches
-        if armSwitch.value and doorSwitch.value:
-            safeToHeat = True
+    
+    #check switches
+    if armSwitch.value and doorSwitch.value:
+        safeToHeat = True
+    else:
+        heatOff()
+        safeToHeat = False
+
+#   #check thermal runaway
+#   if time.time() - heatStopTime > thermRunCheckPer:
+#       #add different types of thermal runaway checks
+#       #add temp sensor to outside of kiln and inside controller enclosure
+#       if not heating and tempC() > heatStopTemp:
+#           emergency = True
+    
+    if emergency:
+        heatOff()
+        return
+
+    #Bang-bang period check
+    if time.time() - bangStartTime > bangPeriod:
+        print("TempC = ",tempC())
+        #print(doorSwitch)
+        print(safeToHeat)
+        print(emergency)
+        print(heating)
+        bangStartTime = time.time()
+        if tempC() < tempTarget:
+            heatOn()
         else:
             heatOff()
-            safeToHeat = False
 
-    #   #check thermal runaway
-    #   if time.time() - heatStopTime > thermRunCheckPer:
-    #       #add different types of thermal runaway checks
-    #       #add temp sensor to outside of kiln and inside controller enclosure
-    #       if not heating and tempC() > heatStopTemp:
-    #           emergency = True
+    #update plot
+    if time.time() - plotStartTime > plotPeriod:
+        #update data file
+        #f.write(str(time.time()) + ", " + str(tempC()) + "," + str(heating) + '\n')
         
-        if emergency:
-            heatOff()
-            return
-
-        #Bang-bang period check
-        if time.time() - bangStartTime > bangPeriod:
-            print("TempC = ",tempC())
-            #print(doorSwitch)
-            print(safeToHeat)
-            print(emergency)
-            print(heating)
-            bangStartTime = time.time()
-            if tempC() < tempTarget:
-                heatOn()
-            else:
-                heatOff()
-
-        #update plot
-        if time.time() - plotStartTime > plotPeriod:
-            #update data file
-            #f.write(str(time.time()) + ", " + str(tempC()) + "," + str(heating) + '\n')
-            
-            x.append(x[-1] +1)
-            y.append(tempC())
-            graph.set_xdata(x)
-            graph.set_ydata(y)
-            plt.xlim(x[0], x[-1])
-            if y[-1] > yMax:
-                yMax = y[-1]
-                plt.ylim(0, yMax + 10)
-            plotStartTime = time.time()
-    except KeyboardInterrupt:
-        print("\nKeybaord interrupt. Cleaning up before exiting.")
-        heatOff()
-        #f.close()
-    finally:
-        print("Exiting.")
-
-
+        x.append(x[-1] +1)
+        y.append(tempC())
+        graph.set_xdata(x)
+        graph.set_ydata(y)
+        plt.xlim(x[0], x[-1])
+        if y[-1] > yMax:
+            yMax = y[-1]
+            plt.ylim(0, yMax + 10)
+        plotStartTime = time.time()
         
 
 #file init
@@ -178,5 +170,12 @@ graph = ax.plot(x,y,color = 'g')[0]
 plt.ylim(0,yMax + 10)
 
 #start plotting
-anim = FuncAnimation(fig, update, frames = None)
-plt.show()
+try:
+    anim = FuncAnimation(fig, update, frames = None)
+    plt.show()
+except KeyboardInterrupt:        
+    print("\nKeybaord interrupt. Cleaning up before exiting.")
+    heatOff()
+    #f.close()
+finally:
+    print("Exiting.")
