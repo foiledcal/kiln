@@ -42,7 +42,7 @@ max31855 = adafruit_max31855.MAX31855(spi, cs)
 #------------------------------------------------------------------------------
 
 #user-defined
-tempTarget = 90
+tempTarget = 200
 bangPeriod = 2
 plotPeriod = 2
 thermRunCheckPer = 30
@@ -174,7 +174,7 @@ try:
     anim = FuncAnimation(fig, update, frames = None)
     plt.show()
 except KeyboardInterrupt:        
-    print("\nKeybaord interrupt. Cleaning up before exiting.")
+    print("\nKeyboard interrupt. Cleaning up before exiting.")
     heatOff()
     #f.close()
 finally:
