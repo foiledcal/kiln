@@ -92,6 +92,10 @@ def tempC():
     global emergency
     try:
         temp = max31855.temperature
+        if temp == 0:
+            print("Thermocouple disconnected, halting operation.")
+            emergency = True
+            return 0
     except Exception as e:
         if e == "thermocouple not connected":
             print("Thermocouple disconnected, halting operation.")
