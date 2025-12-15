@@ -121,12 +121,12 @@ def update(frame):
         heatOff()
         safeToHeat = False
 
-    #check thermal runaway
-    if time.time() - heatStopTime > thermRunCheckPer:
-        #add different types of thermal runaway checks
-        #add temp sensor to outside of kiln and inside controller enclosure
-        if not heating and tempC() > heatStopTemp:
-            emergency = True
+ #   #check thermal runaway
+ #   if time.time() - heatStopTime > thermRunCheckPer:
+ #       #add different types of thermal runaway checks
+ #       #add temp sensor to outside of kiln and inside controller enclosure
+ #       if not heating and tempC() > heatStopTemp:
+ #           emergency = True
     
     if emergency:
         heatOff()
