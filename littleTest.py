@@ -135,6 +135,7 @@ def update(frame):
     #Bang-bang period check
     if time.time() - bangStartTime > bangPeriod:
         print("TempC = ",tempC())
+        #print(doorSwitch)
         print(safeToHeat)
         bangStartTime = time.time()
         if tempF() < tempTarget:
@@ -145,7 +146,7 @@ def update(frame):
     #update plot
     if time.time() - plotStartTime > plotPeriod:
         #update data file
-        f.write(str(time.time()) + ", " + str(tempC()) + "," + str(heating) + '\n')
+        #f.write(str(time.time()) + ", " + str(tempC()) + "," + str(heating) + '\n')
         
         x.append(x[-1] +1)
         y.append(tempC())
